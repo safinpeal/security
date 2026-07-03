@@ -1,4 +1,6 @@
 [variables]
 NIXPACKS_PHP_ROOT_DIR = "public"
-# Tells Nixpacks to optimize the build for production
 NODE_ENV = "production"
+
+[start]
+cmd = "php artisan config:clear && php artisan route:clear && php artisan migrate --force && node /assets/index.js"
