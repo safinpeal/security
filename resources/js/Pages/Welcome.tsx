@@ -500,8 +500,8 @@ export default function Welcome({
                             {/* MD Image */}
                             <div className="w-full md:w-44 h-48 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800">
                                 <img 
-                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" 
-                                    alt="Md. Golam Sarwar - Managing Director" 
+                                    src="/storage/md.jpg" 
+                                    alt="Md. Sazzad Hossain - Managing Director" 
                                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
@@ -512,7 +512,7 @@ export default function Welcome({
                                         Executive Command
                                     </div>
                                     <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
-                                        Md. Golam Sarwar
+                                        Md. Sazzad Hossain
                                     </h4>
                                     <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
                                         Managing Director
