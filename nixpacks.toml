@@ -2,5 +2,12 @@
 NIXPACKS_PHP_ROOT_DIR = "public"
 NODE_ENV = "production"
 
-[start]
-cmd = "php artisan config:clear && php artisan route:clear && php artisan migrate --force && node /assets/index.js"
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm ci",
+    "npm run build",
+    "php artisan config:clear",
+    "php artisan route:clear",
+    "php artisan view:clear"
+]
