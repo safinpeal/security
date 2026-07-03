@@ -498,11 +498,11 @@ export default function Welcome({
                         {/* Managing Director Card */}
                         <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
                             {/* MD Image */}
-                            <div className="w-full md:w-44 h-48 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800">
+                            <div className="w-full md:w-44 h-72 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800 bg-[#050814]">
                                 <img 
-                                    src="/storage/md.jpg" 
+                                    src="/storage/md.png" 
                                     alt="Md. Sazzad Hossain - Managing Director" 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
                             {/* MD Content */}
