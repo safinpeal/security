@@ -334,6 +334,7 @@ export default function Welcome({
 
                     {/* Nav Items */}
                     <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                        <a href="#about" className="hover:text-amber-400 transition-colors">About Us</a>
                         <a href="#services" className="hover:text-amber-400 transition-colors">Services</a>
                         <a href="#gallery" className="hover:text-amber-400 transition-colors">Gallery</a>
                         <a href="#testimonials" className="hover:text-amber-400 transition-colors">Testimonials</a>
@@ -471,6 +472,89 @@ export default function Welcome({
                                         <h4 className="text-sm font-bold text-white">ISO 9001 Vetted</h4>
                                         <p className="text-xs text-slate-400">Tactical readiness & discipline standards</p>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ABOUT US / LEADERSHIP SPEECH SECTION */}
+            <section id="about" className="py-24 border-t border-slate-900/60 bg-[#050814] px-4 sm:px-6 lg:px-8 relative">
+                <div className="max-w-7xl mx-auto">
+                    {/* Header */}
+                    <div className="text-center space-y-4 mb-16">
+                        <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">About Our Agency</h2>
+                        <h3 className="text-3xl sm:text-4xl font-extrabold text-white">
+                            Command & Executive Leadership
+                        </h3>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">
+                            G.S. Securities Ltd. operates under elite veteran command. Our leadership ensures our physical tactical guards, armed officers, and VIP bodyguards meet absolute discipline benchmarks.
+                        </p>
+                    </div>
+
+                    {/* Speeches Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+                        {/* Managing Director Card */}
+                        <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
+                            {/* MD Image */}
+                            <div className="w-full md:w-44 h-48 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800">
+                                <img 
+                                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" 
+                                    alt="Md. Golam Sarwar - Managing Director" 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                            {/* MD Content */}
+                            <div className="flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-bold tracking-wider uppercase">
+                                        Executive Command
+                                    </div>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                                        Md. Golam Sarwar
+                                    </h4>
+                                    <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
+                                        Managing Director
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                                        "At G.S. Securities Ltd., we do not just deploy guards; we design proactive defense ecosystems. Our commitment is to ensure absolute peace of mind for your assets, banks, and corporate structures through constant vigilance and physical rigor."
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500">
+                                    G.S. Securities Ltd. • Managing Director's Address
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Director of Operations Card */}
+                        <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
+                            {/* Director Image */}
+                            <div className="w-full md:w-44 h-48 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800">
+                                <img 
+                                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" 
+                                    alt="Brigadier Gen. (Retd.) M. A. Bari - Director of Operations" 
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                            {/* Director Content */}
+                            <div className="flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">
+                                        Tactical Operations
+                                    </div>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                                        Brig. Gen. (Retd.) M. A. Bari
+                                    </h4>
+                                    <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
+                                        Director of Operations
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                                        "Discipline, rapid mobilization, and strategic foresight are the core pillars of G.S. Securities. By implementing strict military-grade training, supervisor patrol schedules, and 24/7 command center check-ins, we guarantee safety."
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500">
+                                    Tactical Command Division • Director's Speech
                                 </div>
                             </div>
                         </div>
@@ -1088,6 +1172,7 @@ export default function Welcome({
                     <div className="space-y-4">
                         <span className="text-xs uppercase font-bold text-slate-300 block tracking-wider">Quick Links</span>
                         <ul className="space-y-2">
+                            <li><a href="#about" className="hover:text-amber-400 transition-colors">About Us</a></li>
                             <li><a href="#services" className="hover:text-amber-400 transition-colors">Public Services</a></li>
                             <li><a href="#gallery" className="hover:text-amber-400 transition-colors">Readiness Gallery</a></li>
                             <li><a href="#testimonials" className="hover:text-amber-400 transition-colors">Client Testimonials</a></li>
