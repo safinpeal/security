@@ -527,34 +527,34 @@ export default function Welcome({
                             </div>
                         </div>
 
-                        {/* Director of Operations Card */}
+                        {/* Director Card */}
                         <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
                             {/* Director Image */}
-                            <div className="w-full md:w-44 h-48 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800">
+                            <div className="w-full md:w-44 h-72 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800 bg-[#050814]">
                                 <img 
-                                    src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" 
-                                    alt="Brigadier Gen. (Retd.) M. A. Bari - Director of Operations" 
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    src="/storage/director.png" 
+                                    alt="Md. Sanjidur Rahman - Director" 
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                                 />
                             </div>
                             {/* Director Content */}
                             <div className="flex flex-col justify-between space-y-4">
                                 <div className="space-y-3">
                                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">
-                                        Tactical Operations
+                                        Executive Board
                                     </div>
                                     <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
-                                        Brig. Gen. (Retd.) M. A. Bari
+                                        Md. Sanjidur Rahman
                                     </h4>
                                     <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
-                                        Director of Operations
+                                        Director
                                     </p>
                                     <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
                                         "Discipline, rapid mobilization, and strategic foresight are the core pillars of G.S. Securities. By implementing strict military-grade training, supervisor patrol schedules, and 24/7 command center check-ins, we guarantee safety."
                                     </p>
                                 </div>
                                 <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500">
-                                    Tactical Command Division • Director's Speech
+                                    G.S. Securities Ltd. • Director's Speech
                                 </div>
                             </div>
                         </div>
