@@ -22,3 +22,15 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Database and SQLite files
+*.sqlite
+*.sqlite3
+*.db
+/database/*.sqlite
+/database/*.sqlite3
+security.sqlite
+
+# Supabase and SQL dumps
+*.sql
+supabase_dump.sql
