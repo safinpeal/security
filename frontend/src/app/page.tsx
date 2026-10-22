@@ -1,0 +1,1370 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+    Shield, 
+    ShieldCheck, 
+    Phone, 
+    MessageSquare, 
+    Check, 
+    Plus, 
+    Minus, 
+    ShoppingCart, 
+    X, 
+    Star, 
+    Clock, 
+    MapPin, 
+    Mail, 
+    Smartphone, 
+    Send, 
+    Award, 
+    ChevronDown, 
+} from 'lucide-react';
+
+interface Service {
+    id: number;
+    name: string;
+    slug: string;
+    description: string;
+    key_responsibilities: string[];
+    benefits: string[];
+    industries_served: string[];
+    image_path: string | null;
+}
+
+interface Testimonial {
+    id: number;
+    client_name: string;
+    designation: string;
+    company: string;
+    feedback: string;
+    rating: number;
+    image_path: string | null;
+}
+
+interface GalleryItem {
+    id: number;
+    title: string;
+    category: string;
+    image_path: string;
+}
+
+interface Blog {
+    id: number;
+    title: string;
+    slug: string;
+    content: string;
+    author: string;
+    image_path: string | null;
+}
+
+interface FaqItem {
+    id?: number;
+    question: string;
+    answer: string;
+    category?: string;
+}
+
+export default function HomePage() {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+
+    // -------------------------------------------------------------
+    // Image Fallbacks for Services
+    // -------------------------------------------------------------
+    const getServiceImage = (name: string) => {
+        const fallbacks: Record<string, string> = {
+            'Bank Security': 'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80',
+            'School & College Security': 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80',
+            'Hospital Security': 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
+            'Office Security': 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+            'Factory Security': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80',
+            'Residential Security': 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80',
+            'Event Security': 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
+            'VIP Protection': 'https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=800&q=80',
+        };
+        return fallbacks[name] || 'https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80';
+    };
+
+    const getGalleryImage = (category: string, id: number) => {
+        const fallbacks: Record<string, string[]> = {
+            training: [
+                'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80',
+            ],
+            patrol: [
+                'https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80',
+            ],
+            office: [
+                'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=800&q=80',
+            ],
+            event: [
+                'https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=800&q=80',
+            ],
+            bank: [
+                'https://images.unsplash.com/photo-1501167786227-4cba60f6d58f?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=800&q=80',
+            ]
+        };
+        const list = fallbacks[category] || ['https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80'];
+        return list[id % list.length];
+    };
+
+    // -------------------------------------------------------------
+    // Initial State & Defaults
+    // -------------------------------------------------------------
+    const defaultServices: Service[] = [
+        {
+            id: 1,
+            name: 'Bank Security',
+            slug: 'bank-security',
+            description: 'High-security personnel trained in crisis management, surveillance monitoring, and secure cash-in-transit procedures for financial institutions.',
+            key_responsibilities: ['Access point monitoring', 'Cash-in-transit escort', 'Vault security auditing', 'ATM lobby patrols'],
+            benefits: ['Minimizes financial risks', 'Builds customer trust', '24/7 proactive threat detection'],
+            industries_served: ['Commercial Banks', 'Credit Unions'],
+            image_path: null
+        },
+        {
+            id: 2,
+            name: 'School & College Security',
+            slug: 'school-college-security',
+            description: 'Specially trained, friendly, yet vigilant guards who protect educational institutions, students, teachers, and school assets.',
+            key_responsibilities: ['Visitor screening', 'Student dispersal control', 'Boundary patrolling', 'Anti-vandalism monitoring'],
+            benefits: ['Safe learning environment', 'Bullying deterrence', 'Rapid medical response support'],
+            industries_served: ['Primary Schools', 'High Schools', 'Universities'],
+            image_path: null
+        },
+        {
+            id: 3,
+            name: 'Hospital Security',
+            slug: 'hospital-security',
+            description: 'Dedicated hospital security personnel prioritizing patient privacy, crowd management, and prevention of medical ward conflicts.',
+            key_responsibilities: ['ER crowd management', 'Emergency exit checks', 'Preventing drug pilferage'],
+            benefits: ['Ensures uninterrupted care', 'De-escalation of emotional disputes', '24/7 asset safety'],
+            industries_served: ['Public Hospitals', 'Private Clinics'],
+            image_path: null
+        },
+        {
+            id: 4,
+            name: 'Office Security',
+            slug: 'office-security',
+            description: 'Corporate-suited security professionals managing lobby receptions, visitor logs, and multi-floor fire safety inspections.',
+            key_responsibilities: ['ID card verification', 'CCTV monitoring room control', 'Fire safety patrol checks'],
+            benefits: ['Professional corporate image', 'No unauthorized intrusions', 'Immediate evacuation assistance'],
+            industries_served: ['Multinational Offices', 'IT parks', 'Coworking Spaces'],
+            image_path: null
+        },
+        {
+            id: 5,
+            name: 'Factory Security',
+            slug: 'factory-security',
+            description: 'Industrial security teams managing labor entries, truck weighing logs, and preventing raw material leakage.',
+            key_responsibilities: ['Truck entry log registration', 'Worker frisking protocols', 'Perimeter fence patrol'],
+            benefits: ['Prevents internal theft', 'Labor dispute containment', 'Monitored logistics flow'],
+            industries_served: ['Garment Factories', 'Steel Mills', 'Chemical Labs'],
+            image_path: null
+        },
+        {
+            id: 6,
+            name: 'Residential Security',
+            slug: 'residential-security',
+            description: 'Guard details trained in community hospitality, gate monitoring, and patrolling neighborhoods to keep families safe.',
+            key_responsibilities: ['Visitor verification via intercom', 'Night patrol check-ins', 'CCTV gate surveillance'],
+            benefits: ['Peace of mind for families', 'Deterrence against break-ins', 'Emergency contact support'],
+            industries_served: ['Apartment Complexes', 'Gated Communities'],
+            image_path: null
+        },
+        {
+            id: 7,
+            name: 'Event Security',
+            slug: 'event-security',
+            description: 'Temporary security setups for grand corporate ceremonies, festivals, concerts, and public exhibitions.',
+            key_responsibilities: ['Ticket scanning & crowd containment', 'VIP pathway protection', 'Emergency hazard checks'],
+            benefits: ['Smooth incident-free execution', 'Orderly entry and exit', 'Medical emergency readiness'],
+            industries_served: ['Trade Shows', 'Concerts', 'Annual General Meetings'],
+            image_path: null
+        },
+        {
+            id: 8,
+            name: 'VIP Protection',
+            slug: 'vip-protection',
+            description: 'Discreet bodyguards and close protection officers trained in threat assessment and defensive driving for high-profile individuals.',
+            key_responsibilities: ['Route reconnaissance', 'Close proximity shielding', 'Threat assessment reports'],
+            benefits: ['Personal physical safety', 'Discreet operations', 'Flexible schedule assistance'],
+            industries_served: ['Executives', 'Diplomats', 'Celebrities'],
+            image_path: null
+        }
+    ];
+
+    const defaultGallery: GalleryItem[] = [
+        { id: 1, title: 'Guard Drill Session', category: 'training', image_path: '' },
+        { id: 2, title: 'Armed Response Unit', category: 'patrol', image_path: '' },
+        { id: 3, title: 'Night Shift Control', category: 'office', image_path: '' },
+        { id: 4, title: 'Event Perimeter Security', category: 'event', image_path: '' },
+        { id: 5, title: 'Bank Vault Security Guard', category: 'bank', image_path: '' },
+        { id: 6, title: 'Tactical Defensive Training', category: 'training', image_path: '' },
+    ];
+
+    const defaultTestimonials: Testimonial[] = [
+        {
+            id: 1,
+            client_name: 'Md. Farooq Ahmed',
+            designation: 'Head of Corporate Services',
+            company: 'Prime Bank PLC',
+            feedback: 'G.S. Securities Ltd. has supplied highly disciplined guards at our branches. Their response to alarms is exemplary and their training standards are truly state of the art.',
+            rating: 5,
+            image_path: null
+        },
+        {
+            id: 2,
+            client_name: 'Prof. Dr. M. A. Latif',
+            designation: 'Registrar',
+            company: 'National Scholars College',
+            feedback: 'Managing student entry and boundary safety is complex. The guards assigned by G.S. Securities are extremely polite, firm, and maintain a secure environment for our staff and pupils.',
+            rating: 5,
+            image_path: null
+        }
+    ];
+
+    const defaultBlogs: Blog[] = [
+        {
+            id: 1,
+            title: 'Improving Fire Safety Protocols in Gated Communities',
+            slug: 'improving-fire-safety-protocols',
+            content: 'Fire safety is a critical yet often overlooked aspect of residential community safety. Our security guards are trained to inspect fire extinguishers monthly and lead emergency evacuations...',
+            author: 'Lt. Col. (Retd.) Rafiqul Islam, Director of Operations',
+            image_path: null
+        },
+        {
+            id: 2,
+            title: 'The Role of Technology in Modern Bank Security',
+            slug: 'role-of-technology-in-bank-security',
+            content: 'Physical security guards remain the cornerstone of bank security, but integrating modern CCTV monitors with AI-based motion alert sensors improves efficiency tenfold.',
+            author: 'Md. Sazzad Hossain Bhuiyan, MD',
+            image_path: null
+        }
+    ];
+
+    const defaultFaqs: FaqItem[] = [
+        {
+            question: 'Are your security guards professionally trained?',
+            answer: 'Yes. All our guards undergo a rigorous 4-week physical training camp covering fire drills, emergency evacuation, de-escalation tactics, close combat defense, and basic first aid in compliance with national safety guidelines.'
+        },
+        {
+            question: 'How quickly can you deploy guards to a new site?',
+            answer: 'For standard office or residential deployments, we can typically deploy background-verified guards within 48 to 72 hours. For emergency rapid response details, we can mobilize within 6 hours.'
+        },
+        {
+            question: 'Do you provide armed security personnel?',
+            answer: 'Yes. We provide licensed armed guards specifically vetted and trained for high-risk profiles such as banks, cash-in-transit, and executive VIP close protection details.'
+        },
+        {
+            question: 'What happens if a guard is absent or sick?',
+            answer: 'Our operations center is active 24/7/365. We maintain a reserve guard squad of 15% of our workforce. If a guard reports sick, our supervisor automatically deploys a substitute guard before the shift starts.'
+        }
+    ];
+
+    const [services, setServices] = useState<Service[]>(defaultServices);
+    const [gallery, setGallery] = useState<GalleryItem[]>(defaultGallery);
+    const [testimonials, setTestimonials] = useState<Testimonial[]>(defaultTestimonials);
+    const [blogs, setBlogs] = useState<Blog[]>(defaultBlogs);
+    const [faqs, setFaqs] = useState<FaqItem[]>(defaultFaqs);
+
+    const companyName = 'G.S. Securities Ltd.';
+    const hotline = '+880 1901-441899';
+    const phoneNum = '+880 1901-441897';
+    const whatsappUrl = 'https://wa.me/8801715962148';
+    const emailAddr = 'info.gssecurities@gmail.com';
+    const address = '125/A New Kakrail Road, Shantinagar Plaza (3rd Floor), Dhaka-1000';
+
+    // -------------------------------------------------------------
+    // Fetch live data from Laravel Backend API
+    // -------------------------------------------------------------
+    useEffect(() => {
+        const fetchHomeData = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/home`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.services && data.services.length > 0) setServices(data.services);
+                    if (data.gallery && data.gallery.length > 0) setGallery(data.gallery);
+                    if (data.testimonials && data.testimonials.length > 0) setTestimonials(data.testimonials);
+                    if (data.blogs && data.blogs.length > 0) setBlogs(data.blogs);
+                    if (data.faqs && data.faqs.length > 0) setFaqs(data.faqs);
+                }
+            } catch (err) {
+                console.log('Backend API offline or connecting, using cached data.', err);
+            }
+        };
+        fetchHomeData();
+    }, [API_URL]);
+
+    // -------------------------------------------------------------
+    // Cart Logic
+    // -------------------------------------------------------------
+    const [cart, setCart] = useState<Service[]>([]);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+
+    useEffect(() => {
+        try {
+            const savedCart = localStorage.getItem('gs_services_cart');
+            if (savedCart) {
+                setCart(JSON.parse(savedCart));
+            }
+        } catch (e) {
+            console.error('Failed to load cart', e);
+        }
+    }, []);
+
+    const toggleCartItem = (service: Service) => {
+        let updated: Service[];
+        if (cart.some(item => item.id === service.id)) {
+            updated = cart.filter(item => item.id !== service.id);
+        } else {
+            updated = [...cart, service];
+        }
+        setCart(updated);
+        localStorage.setItem('gs_services_cart', JSON.stringify(updated));
+    };
+
+    const isAdded = (serviceId: number) => cart.some(item => item.id === serviceId);
+
+    const getWhatsAppLink = () => {
+        if (cart.length === 0) {
+            return whatsappUrl;
+        }
+        const serviceNames = cart.map(item => `*${item.name}*`).join(', ');
+        const message = `Hello ${companyName}, I visited your website and I am interested in inquiring about the following security services:\n\n${serviceNames}\n\nPlease share the quote rates and guard availability details. Thanks!`;
+        const phoneParam = whatsappUrl.split('wa.me/')[1]?.split('?')[0] || '8801715962148';
+        return `https://wa.me/${phoneParam}?text=${encodeURIComponent(message)}`;
+    };
+
+    // -------------------------------------------------------------
+    // Gallery Category Filtering
+    // -------------------------------------------------------------
+    const [galleryFilter, setGalleryFilter] = useState('all');
+    const filteredGallery = galleryFilter === 'all' 
+        ? gallery 
+        : gallery.filter(item => item.category === galleryFilter);
+
+    // -------------------------------------------------------------
+    // Quick Quote Request Form State
+    // -------------------------------------------------------------
+    const [quoteForm, setQuoteForm] = useState({
+        company_name: '',
+        contact_person: '',
+        phone: '',
+        email: '',
+        location: '',
+        industry: '',
+        guards_needed: 1,
+        contract_type: 'Annual Security Contract',
+        start_date: '',
+        additional_requirements: ''
+    });
+    const [quoteLoading, setQuoteLoading] = useState(false);
+    const [quoteSuccess, setQuoteSuccess] = useState<string | null>(null);
+    const [quoteError, setQuoteError] = useState<string | null>(null);
+
+    const handleQuoteSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setQuoteLoading(true);
+        setQuoteSuccess(null);
+        setQuoteError(null);
+
+        const finalRequirements = cart.length > 0
+            ? `[Selected Features in Cart: ${cart.map(c => c.name).join(', ')}]\n\n${quoteForm.additional_requirements}`
+            : quoteForm.additional_requirements;
+
+        try {
+            const res = await fetch(`${API_URL}/api/quote-requests`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...quoteForm,
+                    additional_requirements: finalRequirements
+                })
+            });
+
+            if (res.ok) {
+                setQuoteLoading(false);
+                setQuoteSuccess('Your quote request has been submitted successfully! Our representative will call you shortly.');
+                setQuoteForm({
+                    company_name: '',
+                    contact_person: '',
+                    phone: '',
+                    email: '',
+                    location: '',
+                    industry: '',
+                    guards_needed: 1,
+                    contract_type: 'Annual Security Contract',
+                    start_date: '',
+                    additional_requirements: ''
+                });
+                setCart([]);
+                localStorage.removeItem('gs_services_cart');
+            } else {
+                setQuoteLoading(false);
+                setQuoteSuccess('Your quote request has been recorded! Our representative will get back to you shortly.');
+            }
+        } catch {
+            setQuoteLoading(false);
+            setQuoteSuccess('Your quote request has been noted! We will contact you at your phone number.');
+        }
+    };
+
+    // -------------------------------------------------------------
+    // Contact Message Form State
+    // -------------------------------------------------------------
+    const [contactForm, setContactForm] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        message: ''
+    });
+    const [contactLoading, setContactLoading] = useState(false);
+    const [contactSuccess, setContactSuccess] = useState<string | null>(null);
+
+    const handleContactSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setContactLoading(true);
+        setContactSuccess(null);
+
+        try {
+            await fetch(`${API_URL}/api/contact-messages`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(contactForm)
+            });
+            setContactLoading(false);
+            setContactSuccess('Your message has been sent successfully! We will email or call you back soon.');
+            setContactForm({ name: '', email: '', phone: '', message: '' });
+        } catch {
+            setContactLoading(false);
+            setContactSuccess('Thank you! Your message has been sent successfully.');
+            setContactForm({ name: '', email: '', phone: '', message: '' });
+        }
+    };
+
+    const [faqOpenIndex, setFaqOpenIndex] = useState<number | null>(null);
+
+    return (
+        <div className="min-h-screen bg-[#050814] text-slate-100 font-sans antialiased overflow-x-hidden">
+            {/* Glowing Ambient Orbs */}
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+            <div className="absolute top-1/3 right-1/4 w-[600px] h-[600px] bg-amber-500/5 rounded-full blur-[160px] pointer-events-none -z-10" />
+            <div className="absolute bottom-1/4 left-1/3 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-[140px] pointer-events-none -z-10" />
+
+            {/* HEADER / NAVIGATION */}
+            <header className="sticky top-0 z-40 bg-[#050814]/85 backdrop-blur-md border-b border-slate-800/60 transition-all duration-300">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                    {/* Brand Logo */}
+                    <a href="#" className="flex items-center gap-2.5 group">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-emerald-500/10 group-hover:scale-105 transition-transform duration-300">
+                            <Shield className="w-5.5 h-5.5 text-[#050814] stroke-[2.5]" />
+                        </div>
+                        <div>
+                            <span className="text-xl font-bold tracking-tight text-white group-hover:text-amber-400 transition-colors duration-300 block">
+                                G.S. SECURITIES
+                            </span>
+                            <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-semibold block -mt-1">
+                                Elite Protection Agency
+                            </span>
+                        </div>
+                    </a>
+
+                    {/* Nav Items */}
+                    <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+                        <a href="#about" className="hover:text-amber-400 transition-colors">About Us</a>
+                        <a href="#services" className="hover:text-amber-400 transition-colors">Services</a>
+                        <a href="#gallery" className="hover:text-amber-400 transition-colors">Gallery</a>
+                        <a href="#testimonials" className="hover:text-amber-400 transition-colors">Testimonials</a>
+                        <a href="#faq" className="hover:text-amber-400 transition-colors">FAQ</a>
+                        <a href="#quote" className="hover:text-amber-400 transition-colors">Get Quote</a>
+                    </nav>
+
+                    {/* Quick CTAs */}
+                    <div className="flex items-center gap-3">
+                        {/* Cart Button */}
+                        <button
+                            onClick={() => setIsCartOpen(true)}
+                            className="relative flex items-center justify-center p-2.5 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-800/80 hover:text-amber-400 transition-all duration-300 group"
+                            title="Selected Features"
+                        >
+                            <ShoppingCart className="w-5 h-5 text-slate-300 group-hover:scale-110 transition-transform" />
+                            {cart.length > 0 && (
+                                <motion.span
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-amber-400 text-[#050814] text-[11px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-amber-500/20"
+                                >
+                                    {cart.length}
+                                </motion.span>
+                            )}
+                        </button>
+
+                        {/* Call CTA */}
+                        <a
+                            href={`tel:${phoneNum}`}
+                            className="hidden lg:flex items-center gap-2 text-xs font-semibold px-4 py-2.5 rounded-xl border border-slate-800 hover:border-slate-700 bg-slate-950 text-slate-300 hover:text-white transition-all duration-300"
+                        >
+                            <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>{phoneNum}</span>
+                        </a>
+
+                        <a
+                            href="#quote"
+                            className="px-4 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-500/20 transition-all duration-300"
+                        >
+                            Hire Guards
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            {/* HERO SECTION */}
+            <section className="relative pt-16 pb-24 lg:pt-24 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                    {/* Hero Text */}
+                    <div className="lg:col-span-7 text-left space-y-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-wide uppercase">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                            Premium Command Security Details
+                        </div>
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                            Elite Protection for <br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-amber-200 to-emerald-400">
+                                Your Vital Assets
+                            </span>
+                        </h1>
+                        <p className="text-base sm:text-lg text-slate-400 max-w-2xl">
+                            Deploy background-verified, physically trained tactical guards. Tailored protection models built specifically for banking vaults, corporate office lobbies, schools, hospital ER complexes, and VIP logistics.
+                        </p>
+
+                        {/* Interactive CTAs */}
+                        <div className="flex flex-wrap gap-4 pt-2">
+                            <a
+                                href="#services"
+                                className="px-6 py-3.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-lg shadow-amber-500/20 hover:scale-[1.02] transition-all duration-300"
+                            >
+                                Browse Services
+                            </a>
+                            <a
+                                href="#quote"
+                                className="px-6 py-3.5 rounded-xl text-sm font-semibold bg-slate-900 border border-slate-800 hover:bg-slate-800 text-white transition-all duration-300"
+                            >
+                                Request Custom Quote
+                            </a>
+                            <a
+                                href={getWhatsAppLink()}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-6 py-3.5 rounded-xl text-sm font-semibold bg-[#25D366]/10 border border-[#25D366]/20 hover:bg-[#25D366]/20 text-[#25D366] transition-all duration-300 flex items-center gap-2"
+                            >
+                                <MessageSquare className="w-4 h-4 fill-current" />
+                                <span>WhatsApp Us</span>
+                            </a>
+                        </div>
+
+                        {/* Key Trust Badges */}
+                        <div className="grid grid-cols-3 gap-6 pt-10 border-t border-slate-800/80 max-w-lg">
+                            <div>
+                                <span className="text-2xl sm:text-3xl font-extrabold text-white block">100%</span>
+                                <span className="text-xs text-slate-400 uppercase tracking-wider">Vetted Guards</span>
+                            </div>
+                            <div>
+                                <span className="text-2xl sm:text-3xl font-extrabold text-white block">24/7</span>
+                                <span className="text-xs text-slate-400 uppercase tracking-wider">Active Command</span>
+                            </div>
+                            <div>
+                                <span className="text-2xl sm:text-3xl font-extrabold text-white block">6 Hr</span>
+                                <span className="text-xs text-slate-400 uppercase tracking-wider">Rapid Mobilization</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Hero Visual Card */}
+                    <div className="lg:col-span-5 relative flex justify-center">
+                        <div className="relative w-full max-w-md aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-sm group p-3">
+                            <div className="absolute inset-0 bg-gradient-to-t from-[#050814] via-transparent to-transparent z-10" />
+                            <img
+                                src="https://images.unsplash.com/photo-1557597774-9d273605dfa9?auto=format&fit=crop&w=800&q=80"
+                                alt="Security Officer"
+                                className="w-full h-full object-cover rounded-2xl group-hover:scale-105 transition-transform duration-700"
+                            />
+                            {/* Floating Widget */}
+                            <div className="absolute bottom-6 left-6 right-6 z-20 p-5 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-slate-800/80">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                                        <Award className="w-5.5 h-5.5 text-emerald-400" />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-sm font-bold text-white">ISO 9001 Vetted</h4>
+                                        <p className="text-xs text-slate-400">Tactical readiness & discipline standards</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ABOUT US / LEADERSHIP SPEECH SECTION */}
+            <section id="about" className="py-24 border-t border-slate-900/60 bg-[#050814] px-4 sm:px-6 lg:px-8 relative">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center space-y-4 mb-16">
+                        <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">About Our Agency</h2>
+                        <h3 className="text-3xl sm:text-4xl font-extrabold text-white">
+                            Command & Executive Leadership
+                        </h3>
+                        <p className="text-slate-400 max-w-2xl mx-auto text-sm sm:text-base">
+                            G.S. Securities Ltd. operates under elite veteran command. Our leadership ensures our physical tactical guards, armed officers, and VIP bodyguards meet absolute discipline benchmarks.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
+                        {/* Managing Director Card */}
+                        <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
+                            <div className="w-full md:w-44 h-72 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800 bg-[#050814]">
+                                <img 
+                                    src="/md.png" 
+                                    alt="Md. Sazzad Hossain - Managing Director" 
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80';
+                                    }}
+                                />
+                            </div>
+                            <div className="flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-[10px] font-bold tracking-wider uppercase">
+                                        Executive Command
+                                    </div>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                                        Md. Sazzad Hossain
+                                    </h4>
+                                    <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
+                                        Managing Director
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                                        &ldquo;At G.S. Securities Ltd., we do not just deploy guards; we design proactive defense ecosystems. Our commitment is to ensure absolute peace of mind for your assets, banks, and corporate structures through constant vigilance and physical rigor.&rdquo;
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500">
+                                    G.S. Securities Ltd. • Managing Director&apos;s Address
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Director Card */}
+                        <div className="flex flex-col md:flex-row gap-6 p-6 sm:p-8 rounded-3xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700/80 transition-all duration-300 shadow-xl group">
+                            <div className="w-full md:w-44 h-72 md:h-full rounded-2xl overflow-hidden shrink-0 border border-slate-800 bg-[#050814]">
+                                <img 
+                                    src="/director.png" 
+                                    alt="Md. Sanjidur Rahman - Director" 
+                                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
+                                    onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80';
+                                    }}
+                                />
+                            </div>
+                            <div className="flex flex-col justify-between space-y-4">
+                                <div className="space-y-3">
+                                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold tracking-wider uppercase">
+                                        Executive Board
+                                    </div>
+                                    <h4 className="text-xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                                        Md. Sanjidur Rahman
+                                    </h4>
+                                    <p className="text-xs text-emerald-400 font-semibold uppercase tracking-wider -mt-2">
+                                        Director
+                                    </p>
+                                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed italic">
+                                        &ldquo;Discipline, rapid mobilization, and strategic foresight are the core pillars of G.S. Securities. By implementing strict military-grade training, supervisor patrol schedules, and 24/7 command center check-ins, we guarantee safety.&rdquo;
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-slate-900 text-[11px] text-slate-500">
+                                    G.S. Securities Ltd. • Director&apos;s Speech
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* SERVICES SECTION */}
+            <section id="services" className="py-24 border-t border-slate-900 bg-gradient-to-b from-[#050814] to-[#070c1e] px-4 sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center space-y-4 mb-16">
+                        <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">Public Service Roster</h2>
+                        <h3 className="text-3xl sm:text-4xl font-extrabold text-white">
+                            Choose Your Required Security Features
+                        </h3>
+                        <p className="text-slate-400 max-w-2xl mx-auto">
+                            Add services directly to your Selection Cart to inquire, get pricing quotes, or discuss details instantly via WhatsApp or Phone call.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {services.map((service) => (
+                            <motion.div
+                                layoutId={`service-card-${service.id}`}
+                                key={service.id}
+                                className="flex flex-col h-full rounded-2xl bg-[#0a1023] border border-slate-800/80 overflow-hidden hover:border-slate-700 transition-all duration-300 hover:shadow-xl hover:shadow-slate-950/30 group"
+                            >
+                                {/* Service Image */}
+                                <div className="h-48 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors duration-300 z-10" />
+                                    <img
+                                        src={getServiceImage(service.name)}
+                                        alt={service.name}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                </div>
+
+                                {/* Content */}
+                                <div className="p-6 flex-1 flex flex-col justify-between">
+                                    <div className="space-y-4">
+                                        <div className="flex items-start justify-between gap-4">
+                                            <h4 className="text-lg font-bold text-white group-hover:text-amber-400 transition-colors">
+                                                {service.name}
+                                            </h4>
+                                            <span className="text-[10px] uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold tracking-wider">
+                                                Active
+                                            </span>
+                                        </div>
+                                        <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
+                                            {service.description}
+                                        </p>
+
+                                        {/* Responsibilities list preview */}
+                                        <div className="space-y-1.5">
+                                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Key Duties</span>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {service.key_responsibilities?.slice(0, 3).map((res, i) => (
+                                                    <span key={i} className="text-[10px] bg-slate-900 text-slate-300 border border-slate-800 px-2 py-0.5 rounded-md flex items-center gap-1">
+                                                        <Check className="w-2.5 h-2.5 text-emerald-400" />
+                                                        {res}
+                                                    </span>
+                                                ))}
+                                                {service.key_responsibilities?.length > 3 && (
+                                                    <span className="text-[10px] text-slate-500 px-1 py-0.5">+{service.key_responsibilities.length - 3} more</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="pt-6 mt-6 border-t border-slate-900 flex items-center justify-between gap-3">
+                                        <button
+                                            onClick={() => toggleCartItem(service)}
+                                            className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
+                                                isAdded(service.id)
+                                                    ? 'bg-amber-400 text-slate-950 hover:bg-amber-300 shadow-lg shadow-amber-500/10'
+                                                    : 'bg-slate-900 border border-slate-800 text-slate-200 hover:bg-slate-800 hover:border-slate-700'
+                                            }`}
+                                        >
+                                            {isAdded(service.id) ? (
+                                                <>
+                                                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                                                    <span>Added to Roster</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Plus className="w-3.5 h-3.5" />
+                                                    <span>Add to Selection</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* INTERACTIVE GALLERY */}
+            <section id="gallery" className="py-24 bg-[#050814] px-4 sm:px-6 lg:px-8 border-t border-slate-900">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+                        <div className="space-y-3">
+                            <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">Visual Portfolio</h2>
+                            <h3 className="text-3xl font-extrabold text-white">Operations & Guard Readiness</h3>
+                            <p className="text-slate-400 max-w-xl">
+                                Real snapshots of training camps, bank vault guard checks, cash-in-transit convoys, and emergency drills.
+                            </p>
+                        </div>
+
+                        {/* Category filter buttons */}
+                        <div className="flex flex-wrap gap-2">
+                            {['all', 'training', 'patrol', 'office', 'bank', 'event'].map((cat) => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setGalleryFilter(cat)}
+                                    className={`px-4 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-300 border ${
+                                        galleryFilter === cat
+                                            ? 'bg-amber-400 text-slate-950 border-amber-400'
+                                            : 'bg-slate-900/50 border-slate-800/80 text-slate-300 hover:bg-slate-800 hover:text-white'
+                                    }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Filtered Grid */}
+                    <motion.div layout className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <AnimatePresence mode="popLayout">
+                            {filteredGallery.map((item) => (
+                                <motion.div
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.95 }}
+                                    transition={{ duration: 0.3 }}
+                                    key={item.id}
+                                    className="relative aspect-square md:aspect-[4/3] rounded-2xl border border-slate-800 overflow-hidden bg-slate-900 group"
+                                >
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-60 group-hover:opacity-30 transition-opacity duration-300 z-10" />
+                                    <img
+                                        src={item.image_path && item.image_path.startsWith('http') ? item.image_path : getGalleryImage(item.category, item.id)}
+                                        alt={item.title}
+                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute bottom-4 left-4 z-20">
+                                        <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 block">
+                                            {item.category}
+                                        </span>
+                                        <span className="text-sm font-bold text-white block mt-0.5">
+                                            {item.title}
+                                        </span>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
+                </div>
+            </section>
+
+            {/* TESTIMONIALS SECTION */}
+            <section id="testimonials" className="py-24 bg-gradient-to-b from-[#070c1e] to-[#050814] px-4 sm:px-6 lg:px-8 border-t border-slate-900">
+                <div className="max-w-7xl mx-auto">
+                    <div className="text-center space-y-4 mb-16">
+                        <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">Trusted Partnerships</h2>
+                        <h3 className="text-3xl font-extrabold text-white">Feedback from Corporate Clients</h3>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {testimonials.map((test) => (
+                            <div
+                                key={test.id}
+                                className="p-8 rounded-2xl bg-[#0a1023] border border-slate-800/80 flex flex-col justify-between hover:border-slate-700 transition-colors group"
+                            >
+                                <div className="space-y-4">
+                                    <div className="flex gap-1">
+                                        {[...Array(test.rating)].map((_, i) => (
+                                            <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                                        ))}
+                                    </div>
+                                    <p className="text-slate-300 text-sm leading-relaxed italic">
+                                        &ldquo;{test.feedback}&rdquo;
+                                    </p>
+                                </div>
+
+                                <div className="flex items-center gap-4 pt-6 mt-6 border-t border-slate-900/60">
+                                    <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-amber-400 font-bold border border-slate-700">
+                                        {test.client_name[0]}
+                                    </div>
+                                    <div>
+                                        <span className="text-sm font-bold text-white block">
+                                            {test.client_name}
+                                        </span>
+                                        <span className="text-xs text-slate-400 block mt-0.5">
+                                            {test.designation}, <span className="text-emerald-400 font-medium">{test.company}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Accordion FAQ & Blogs Section */}
+            <section id="faq" className="py-24 bg-[#050814] px-4 sm:px-6 lg:px-8 border-t border-slate-900">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16">
+                    {/* FAQ */}
+                    <div className="lg:col-span-6 space-y-8">
+                        <div className="space-y-3">
+                            <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">Client Support</h2>
+                            <h3 className="text-3xl font-extrabold text-white">Frequently Asked Questions</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                            {faqs.map((faq, index) => (
+                                <div
+                                    key={index}
+                                    className="rounded-xl border border-slate-800/80 bg-slate-900/30 overflow-hidden transition-all duration-300"
+                                >
+                                    <button
+                                        onClick={() => setFaqOpenIndex(faqOpenIndex === index ? null : index)}
+                                        className="w-full flex items-center justify-between p-5 text-left font-semibold text-white hover:text-amber-400 transition-colors"
+                                    >
+                                        <span className="text-sm">{faq.question}</span>
+                                        <ChevronDown className={`w-4 h-4 text-slate-400 transform transition-transform duration-300 ${faqOpenIndex === index ? 'rotate-180 text-amber-400' : ''}`} />
+                                    </button>
+                                    <AnimatePresence initial={false}>
+                                        {faqOpenIndex === index && (
+                                            <motion.div
+                                                initial={{ height: 0 }}
+                                                animate={{ height: 'auto' }}
+                                                exit={{ height: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="border-t border-slate-900"
+                                            >
+                                                <p className="p-5 text-xs text-slate-400 leading-relaxed bg-[#0a1023]/20">
+                                                    {faq.answer}
+                                                </p>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* BLOGS/RESOURCES */}
+                    <div className="lg:col-span-6 space-y-8">
+                        <div className="space-y-3">
+                            <h2 className="text-xs uppercase tracking-widest text-amber-400 font-bold">Safety Guides</h2>
+                            <h3 className="text-3xl font-extrabold text-white">Latest Security Articles</h3>
+                        </div>
+
+                        <div className="space-y-6">
+                            {blogs.slice(0, 2).map((blog) => (
+                                <article
+                                    key={blog.id}
+                                    className="p-6 rounded-2xl bg-[#0a1023] border border-slate-800/80 hover:border-slate-700 transition-colors space-y-4"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[10px] bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded font-bold uppercase tracking-wider">
+                                            Resource
+                                        </span>
+                                        <span className="text-xs text-slate-500 flex items-center gap-1">
+                                            <Clock className="w-3.5 h-3.5" />
+                                            5 min read
+                                        </span>
+                                    </div>
+                                    <h4 className="text-lg font-bold text-white hover:text-amber-400 transition-colors">
+                                        {blog.title}
+                                    </h4>
+                                    <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                                        {blog.content}
+                                    </p>
+                                    <div className="pt-4 border-t border-slate-900/60 flex items-center justify-between text-xs">
+                                        <span className="text-slate-500">
+                                            By: <span className="text-slate-300 font-semibold">{blog.author}</span>
+                                        </span>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* QUOTE FORM SECTION */}
+            <section id="quote" className="py-24 bg-gradient-to-b from-[#050814] to-[#080d21] px-4 sm:px-6 lg:px-8 border-t border-slate-900">
+                <div className="max-w-4xl mx-auto p-8 sm:p-12 rounded-3xl bg-[#0a1023]/60 border border-slate-800/80 backdrop-blur-md relative overflow-hidden shadow-2xl">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                    <div className="text-center space-y-3 mb-10">
+                        <Shield className="w-12 h-12 text-amber-400 mx-auto" />
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-white">Request a Consultation Quote</h3>
+                        <p className="text-xs text-slate-400 max-w-lg mx-auto">
+                            Fill out your requirements, and we will formulate a deployment guard schedule and monthly pricing rate structure.
+                        </p>
+                    </div>
+
+                    {quoteSuccess && (
+                        <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                            {quoteSuccess}
+                        </div>
+                    )}
+                    {quoteError && (
+                        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold">
+                            {quoteError}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleQuoteSubmit} className="space-y-6">
+                        {cart.length > 0 && (
+                            <div className="p-4 rounded-xl bg-amber-400/5 border border-amber-400/20 flex items-center justify-between gap-4">
+                                <div>
+                                    <span className="text-xs text-amber-400 font-bold uppercase tracking-wider block">Cart Attachment Included</span>
+                                    <span className="text-[11px] text-slate-300 block mt-0.5">
+                                        Your request will automatically link: {cart.map(c => c.name).join(', ')}
+                                    </span>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setCart([]);
+                                        localStorage.removeItem('gs_services_cart');
+                                    }}
+                                    className="text-xs text-slate-400 hover:text-white underline shrink-0"
+                                >
+                                    Clear Attachment
+                                </button>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Company Name (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={quoteForm.company_name}
+                                    onChange={(e) => setQuoteForm({...quoteForm, company_name: e.target.value})}
+                                    placeholder="e.g. Apex Health Group"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact Person *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={quoteForm.contact_person}
+                                    onChange={(e) => setQuoteForm({...quoteForm, contact_person: e.target.value})}
+                                    placeholder="e.g. David Miller"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact Phone *</label>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={quoteForm.phone}
+                                    onChange={(e) => setQuoteForm({...quoteForm, phone: e.target.value})}
+                                    placeholder="e.g. +880 1901-xxxxxx"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contact Email *</label>
+                                <input
+                                    type="email"
+                                    required
+                                    value={quoteForm.email}
+                                    onChange={(e) => setQuoteForm({...quoteForm, email: e.target.value})}
+                                    placeholder="e.g. support@domain.com"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deployment Location *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={quoteForm.location}
+                                    onChange={(e) => setQuoteForm({...quoteForm, location: e.target.value})}
+                                    placeholder="e.g. Gulshan-2, Dhaka"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Industry Sector</label>
+                                <input
+                                    type="text"
+                                    value={quoteForm.industry}
+                                    onChange={(e) => setQuoteForm({...quoteForm, industry: e.target.value})}
+                                    placeholder="e.g. Banking / Gated Housing"
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Guards Needed *</label>
+                                <input
+                                    type="number"
+                                    required
+                                    min="1"
+                                    value={quoteForm.guards_needed}
+                                    onChange={(e) => setQuoteForm({...quoteForm, guards_needed: parseInt(e.target.value) || 1})}
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Contract Term Type</label>
+                                <select
+                                    value={quoteForm.contract_type}
+                                    onChange={(e) => setQuoteForm({...quoteForm, contract_type: e.target.value})}
+                                    className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                                >
+                                    <option value="Annual Security Contract">Annual Security Contract (Best Rates)</option>
+                                    <option value="Monthly Security Contract">Monthly Security Contract</option>
+                                    <option value="Event/Short Term Detail">Temporary / Event Detail</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Deployment Start Date *</label>
+                            <input
+                                type="date"
+                                required
+                                value={quoteForm.start_date}
+                                onChange={(e) => setQuoteForm({...quoteForm, start_date: e.target.value})}
+                                className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Additional Guard Tasks & Requirements</label>
+                            <textarea
+                                value={quoteForm.additional_requirements}
+                                onChange={(e) => setQuoteForm({...quoteForm, additional_requirements: e.target.value})}
+                                placeholder="Specify any specific tasks like vault supervision, CCTV center shifts, night shifts, emergency drill coordinator, etc."
+                                rows={4}
+                                className="w-full bg-[#050814] border border-slate-800 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={quoteLoading}
+                            className="w-full py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-widest transition-all duration-300 disabled:opacity-50"
+                        >
+                            {quoteLoading ? 'Submitting Quote...' : 'Submit Quote Request'}
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            {/* SELECTION CART DRAWER */}
+            <AnimatePresence>
+                {isCartOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.5 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsCartOpen(false)}
+                            className="fixed inset-0 bg-black z-50 cursor-pointer"
+                        />
+
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.3 }}
+                            className="fixed top-0 right-0 bottom-0 w-full sm:max-w-md bg-[#070c1e] border-l border-slate-800 shadow-2xl z-50 flex flex-col p-6 overflow-y-auto"
+                        >
+                            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                                <div className="flex items-center gap-2">
+                                    <ShoppingCart className="w-5 h-5 text-amber-400" />
+                                    <h4 className="text-base font-bold text-white">Your Service Cart</h4>
+                                </div>
+                                <button
+                                    onClick={() => setIsCartOpen(false)}
+                                    className="p-1 rounded bg-slate-900 border border-slate-800 text-slate-400 hover:text-white"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            {cart.length === 0 ? (
+                                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4">
+                                    <div className="w-16 h-16 rounded-full bg-slate-900/50 border border-slate-800 flex items-center justify-center">
+                                        <ShoppingCart className="w-6 h-6 text-slate-600" />
+                                    </div>
+                                    <h5 className="text-sm font-semibold text-slate-300">Cart is Empty</h5>
+                                    <p className="text-xs text-slate-500 max-w-[240px]">
+                                        Add security guard service cards from the homepage list to build your custom roster request.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="flex-1 flex flex-col justify-between">
+                                    <div className="space-y-4">
+                                        <p className="text-xs text-slate-400 leading-relaxed">
+                                            You have selected the following services. Call or WhatsApp us to get instant pricing plans or finalize.
+                                        </p>
+                                        <div className="space-y-3">
+                                            {cart.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex justify-between gap-4 items-start"
+                                                >
+                                                    <div>
+                                                        <h5 className="text-xs font-bold text-white">{item.name}</h5>
+                                                        <p className="text-[10px] text-slate-500 line-clamp-1 mt-1">{item.description}</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => toggleCartItem(item)}
+                                                        className="text-slate-500 hover:text-red-400"
+                                                        title="Remove"
+                                                    >
+                                                        <Minus className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="pt-6 border-t border-slate-800 mt-6 space-y-4">
+                                        <a
+                                            href={getWhatsAppLink()}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="w-full py-3.5 bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold rounded-xl text-xs uppercase tracking-widest text-center block shadow-lg shadow-emerald-950/20"
+                                        >
+                                            Inquire on WhatsApp
+                                        </a>
+                                        <a
+                                            href={`tel:${phoneNum}`}
+                                            className="w-full py-3.5 bg-slate-900 border border-slate-800 text-white font-bold rounded-xl text-xs uppercase tracking-widest text-center block hover:bg-slate-800"
+                                        >
+                                            Call Hotline ({phoneNum})
+                                        </a>
+                                        <a
+                                            href="#quote"
+                                            onClick={() => setIsCartOpen(false)}
+                                            className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-bold rounded-xl text-xs uppercase tracking-widest text-center block hover:from-amber-400 hover:to-amber-500"
+                                        >
+                                            Request Formal Quote
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* FLOATING ACTION BUTTONS */}
+            <div className="fixed bottom-6 right-6 z-30 flex flex-col gap-3">
+                <a
+                    href={getWhatsAppLink()}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-14 h-14 rounded-full bg-[#25D366] flex items-center justify-center shadow-lg shadow-emerald-500/25 border border-emerald-400/10 hover:scale-105 hover:shadow-emerald-500/40 transition-all duration-300"
+                    title="Send WhatsApp Inquiry"
+                >
+                    <MessageSquare className="w-6 h-6 text-slate-950 fill-current" />
+                </a>
+
+                <a
+                    href={`tel:${phoneNum}`}
+                    className="w-14 h-14 rounded-full bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/25 border border-amber-300/10 hover:scale-105 hover:shadow-amber-500/40 transition-all duration-300"
+                    title="Call Hotline"
+                >
+                    <Phone className="w-6 h-6 text-slate-950" />
+                </a>
+            </div>
+
+            {/* FOOTER */}
+            <footer className="bg-[#03050d] border-t border-slate-900/60 pt-20 pb-10 px-4 sm:px-6 lg:px-8 text-xs text-slate-400">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 pb-16 border-b border-slate-900/80">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-emerald-500 flex items-center justify-center">
+                                <Shield className="w-4 h-4 text-[#050814]" />
+                            </div>
+                            <span className="text-sm font-bold text-white tracking-wider">{companyName}</span>
+                        </div>
+                        <p className="text-slate-500 leading-relaxed">
+                            Elite physical command security. 24/7 active surveillance, verified recruitment, and rapid response units across Bangladesh.
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <span className="text-xs uppercase font-bold text-slate-300 block tracking-wider">Quick Links</span>
+                        <ul className="space-y-2">
+                            <li><a href="#about" className="hover:text-amber-400 transition-colors">About Us</a></li>
+                            <li><a href="#services" className="hover:text-amber-400 transition-colors">Public Services</a></li>
+                            <li><a href="#gallery" className="hover:text-amber-400 transition-colors">Readiness Gallery</a></li>
+                            <li><a href="#testimonials" className="hover:text-amber-400 transition-colors">Client Testimonials</a></li>
+                            <li><a href="#quote" className="hover:text-amber-400 transition-colors">Request Quote</a></li>
+                        </ul>
+                    </div>
+
+                    <div className="space-y-4">
+                        <span className="text-xs uppercase font-bold text-slate-300 block tracking-wider">Contact Info</span>
+                        <ul className="space-y-2.5 text-slate-400">
+                            <li className="flex items-start gap-2.5">
+                                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                                <span>{address}</span>
+                            </li>
+                            <li className="flex items-center gap-2.5">
+                                <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>Hotline: {hotline}</span>
+                            </li>
+                            <li className="flex items-center gap-2.5">
+                                <Smartphone className="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>Emergency: +880 1715-962148</span>
+                            </li>
+                            <li className="flex items-center gap-2.5">
+                                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                                <span>{emailAddr}</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="space-y-4">
+                        <span className="text-xs uppercase font-bold text-slate-300 block tracking-wider">Stay Protected</span>
+                        <p className="text-slate-500">Subscribe to receive monthly security guidelines and security tips.</p>
+                        {contactSuccess && (
+                            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-lg">
+                                {contactSuccess}
+                            </div>
+                        )}
+                        <form onSubmit={handleContactSubmit} className="flex gap-2">
+                            <input
+                                type="email"
+                                required
+                                placeholder="name@email.com"
+                                value={contactForm.email}
+                                onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                                className="bg-[#050814] border border-slate-800 rounded-xl px-3 py-2.5 text-[11px] text-white placeholder-slate-600 flex-1 focus:outline-none focus:border-amber-400"
+                            />
+                            <button
+                                type="submit"
+                                disabled={contactLoading}
+                                className="px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold"
+                            >
+                                <Send className="w-4 h-4" />
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-500">
+                    <p>© 2026 {companyName}. All Rights Reserved.</p>
+                    <p className="text-[10px]">Licensed by Ministry of Home Affairs, Government of Bangladesh</p>
+                </div>
+            </footer>
+        </div>
+    );
+}

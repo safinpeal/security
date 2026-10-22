@@ -1,36 +1,48 @@
+# Logs & OS
 *.log
 .DS_Store
-.env
-.env.backup
-.env.production
-.phpactor.json
-.phpunit.result.cache
-/.fleet
-/.idea
-/.nova
-/.phpunit.cache
-/.vscode
-/.zed
-/auth.json
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
 Thumbs.db
+.phpunit.result.cache
+.phpunit.cache
+/.vscode
+/.idea
+
+# Environment files
+**/.env
+**/.env.backup
+**/.env.production
+**/.env*.local
+
+# Node & Next.js
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+build/
+dist/
+
+# PHP & Laravel Backend
+vendor/
+**/vendor/
+/backend/storage/*.key
+/backend/storage/logs/*
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/bootstrap/cache/*
+/backend/public/storage
+/backend/public/hot
 
 # Database and SQLite files
 *.sqlite
 *.sqlite3
 *.db
-/database/*.sqlite
-/database/*.sqlite3
 security.sqlite
+backend/security.sqlite
+database/*.sqlite
 
-# Supabase and SQL dumps
+# Supabase and SQL dumps (preserved locally, ignored from git)
 *.sql
 supabase_dump.sql
+backend/supabase_dump.sql

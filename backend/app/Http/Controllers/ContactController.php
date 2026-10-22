@@ -25,6 +25,13 @@ class ContactController extends Controller
 
         QuoteRequest::create(array_merge($validated, ['status' => 'pending']));
 
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Quote request submitted successfully!'
+            ], 201);
+        }
+
         return back()->with('success', 'Quote request submitted successfully!');
     }
 
@@ -38,6 +45,13 @@ class ContactController extends Controller
         ]);
 
         ContactMessage::create(array_merge($validated, ['status' => 'unread']));
+
+        if ($request->wantsJson() || $request->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your message has been sent successfully!'
+            ], 201);
+        }
 
         return back()->with('success', 'Your message has been sent successfully!');
     }
